@@ -3,18 +3,8 @@ module Hublot
   # Clock argument for testing; defaults to Time
   def pretty(clock=Time.now)
     @expired = (clock-self).to_i
-    @today = clock.strftime('%A')
-    @created = self.to_time.strftime('%A')
-
-    @days = {
-      "Monday" => 1,
-      "Tuesday" => 2,
-      "Wednesday" => 3,
-      "Thursday" => 4,
-      "Friday" => 5,
-      "Saturday" => 6,
-      "Sunday" => 7
-    }
+    @today_week = clock.strftime('%u').to_i
+    @created_week = self.to_time.strftime('%u').to_i
 
     return just_now     if just_now?
     return a_second_ago if a_second_ago?
@@ -25,13 +15,13 @@ module Hublot
     return today        if is_today?
     return yesterday    if is_yesterday?
     return this_week    if this_week?
-    return last_week    if last_week?
+    return datetimefiesta    if last_week?
     return datetimefiesta
   end
 
 private
   def just_now
-    'just now'
+    'только что'
   end
 
   def just_now?
@@ -39,7 +29,7 @@ private
   end
 
   def a_second_ago
-    'a second ago'
+    'секунду назад'
   end
 
   def a_second_ago?
@@ -47,7 +37,8 @@ private
   end
 
   def seconds_ago
-    @expired.to_s+' seconds ago'
+
+    @expired.to_s + " #{Russian::p(@expired, "секунду назад", "секунды назад", "секунд назад")}"
   end
 
   def seconds_ago?
@@ -55,7 +46,7 @@ private
   end
 
   def a_minute_ago
-    'a minute ago'
+    'минуту назад'
   end
 
   def a_minute_ago?
@@ -63,7 +54,7 @@ private
   end
 
   def minutes_ago
-    (@expired/60).to_i.to_s+' minutes ago'
+    (@expired/60).to_i.to_s + " #{Russian::p((@expired/60).to_i, "минуту назад", "минуты назад", "минут назад")}"
   end
 
   def minutes_ago?
@@ -71,7 +62,7 @@ private
   end
 
   def an_hour_ago
-    'an hour ago'
+    'час назад'
   end
 
   def an_hour_ago?
@@ -79,35 +70,35 @@ private
   end
 
   def today
-    "Today at#{timeify}"
+    "сегодня в #{timeify}"
   end
 
   def timeify
-    "#{self.to_time.strftime("%l:%M%p")}"
+    "#{self.to_time.strftime("%R")}"
   end
 
   def is_today?
-    @days[@today] - @days[@created] == 0 && @expired >= 7200 && @expired <= 82800
+    @today_week - @created_week == 0 && @expired >= 7200 && @expired <= 82800
   end
 
   def yesterday
-    "Yesterday at#{timeify}"
+    "вчера в #{timeify}"
   end
 
   def is_yesterday?
-    (@days[@today] - @days[@created] == 1 || @days[@created] + @days[@today] == 8) && @expired <= 172800 
+    (@today_week - @created_week == 1 || @created_week + @today_week == 8) && @expired <= 172800 
   end
 
   def this_week
-    "#{@created} at#{timeify}"
+    "#{@created_week} в #{timeify}"
   end
 
   def this_week?
-    @expired <= 604800 && @days[@today] - @days[@created] != 0 
+    @expired <= 604800 && @today_week - @created_week != 0 
   end
 
   def last_week
-    "Last #{@created} at#{timeify}"
+    self.datetimefiesta
   end
 
   def last_week?
@@ -115,6 +106,6 @@ private
   end
 
   def datetimefiesta
-    self.strftime("%A, %B %e at%l:%M%p")
+    Russian::strftime(self, "%e %b %Y в %R")
   end
 end
