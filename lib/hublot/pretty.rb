@@ -1,10 +1,10 @@
 module Hublot
 
   # Clock argument for testing; defaults to Time
-  def pretty(clock=Time.now)
+  def pretty(clock = Time.now)
     @expired = (clock-self).to_i
-    @self = self.to_time.strftime('%A')
-    @today_day_of_week = clock.strftime('%u').to_i
+    @self = Russian::strftime(self.to_time, '%A')
+    @today_day_of_week ||= clock.strftime('%u').to_i
     @self_day_of_week = self.to_time.strftime('%u').to_i
 
     return just_now     if just_now?
@@ -15,7 +15,7 @@ module Hublot
     return an_hour_ago  if an_hour_ago?
     return today        if is_today?
     return yesterday    if is_yesterday?
-    return this_week    if this_week?
+    return datetimefiesta    if this_week?
     return datetimefiesta    if last_week?
     return datetimefiesta
   end
