@@ -3,8 +3,9 @@ module Hublot
   # Clock argument for testing; defaults to Time
   def pretty(clock=Time.now)
     @expired = (clock-self).to_i
-    @today_week = clock.strftime('%u').to_i
-    @created_week = self.to_time.strftime('%u').to_i
+    @self = self.to_time.strftime('%A')
+    @today_day_of_week = clock.strftime('%u').to_i
+    @self_day_of_week = self.to_time.strftime('%u').to_i
 
     return just_now     if just_now?
     return a_second_ago if a_second_ago?
@@ -78,7 +79,7 @@ private
   end
 
   def is_today?
-    @today_week - @created_week == 0 && @expired >= 7200 && @expired <= 82800
+    @today_day_of_week - @self_day_of_week == 0 && @expired >= 7200 && @expired <= 82800
   end
 
   def yesterday
@@ -86,15 +87,15 @@ private
   end
 
   def is_yesterday?
-    (@today_week - @created_week == 1 || @created_week + @today_week == 8) && @expired <= 172800 
+    (@today_day_of_week - @self_day_of_week == 1 || @self_day_of_week + @today_day_of_week == 8) && @expired <= 172800 
   end
 
   def this_week
-    "#{@created_week} в #{timeify}"
+    "#{@self} в #{timeify}"
   end
 
   def this_week?
-    @expired <= 604800 && @today_week - @created_week != 0 
+    @expired <= 604800 && @today_day_of_week - @self_day_of_week != 0 
   end
 
   def last_week
